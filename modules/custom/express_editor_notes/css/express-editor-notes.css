@@ -1,0 +1,57 @@
+/* Variables */
+body.express-editor-notes { padding-bottom: 60px !important; }
+body.express-editor-notes #cu_back_to_top { bottom: 50px; }
+
+@media screen and (max-width: 600px) { body.express-editor-notes { padding-bottom: 120px !important; }
+  body.express-editor-notes #cu-feedback { bottom: 40px; } }
+.express-editor-notes-container { background-color: #f5f5f5; z-index: 1; -webkit-box-shadow: 0 0 5px rgba(0, 0, 0, 0.25); -moz-box-shadow: 0 0 5px rgba(0, 0, 0, 0.25); box-shadow: 0 0 5px rgba(0, 0, 0, 0.25); font-size: 75%; }
+
+.express-editor-notes-toolbar { background-color: #333; color: #fff; padding: 0 20px; position: relative; }
+.express-editor-notes-toolbar a:link, .express-editor-notes-toolbar a:visited { color: #fff; font-weight: 600; display: inline-block; padding: 0 20px; line-height: 40px; }
+.express-editor-notes-toolbar a:link i.fa, .express-editor-notes-toolbar a:visited i.fa { color: #eccc2e; }
+.express-editor-notes-toolbar a:hover, .express-editor-notes-toolbar a:focus, .express-editor-notes-toolbar a.active { background-color: #555; color: #fff; }
+.express-editor-notes-toolbar a:hover i.fa, .express-editor-notes-toolbar a:focus i.fa, .express-editor-notes-toolbar a.active i.fa { color: #fff; }
+.express-editor-notes-toolbar h2 { display: inline-block; font-size: 100%; margin: 0; background: #ddd; color: #000; padding-left: 20px; padding-right: 20px; margin-left: -20px; line-height: 40px; }
+.express-editor-notes-toolbar a.express-editor-notes-label-link { color: #000; padding: 0; }
+.express-editor-notes-toolbar a.express-editor-notes-label-link i.fa { color: #000; }
+.express-editor-notes-toolbar h2.notes-active { background: #eccc2e; color: #000; }
+
+.express-editor-notes-closed { position: fixed; bottom: 0; left: 0; right: 0; }
+.express-editor-notes-closed #express-editor-notes-content { display: none; }
+.express-editor-notes-closed .express-editor-notes-toolbar .express-editor-notes-close { display: none; }
+
+.express-editor-notes-open .express-editor-notes-toolbar a.express-editor-notes-close { position: absolute; right: 10px; top: 0; padding: 0 10px; line-height: 40px; display: block; color: #fff !important; font-size: 125%; }
+.express-editor-notes-open .express-editor-notes-toolbar a.express-editor-notes-close i.fa { color: #fff; }
+
+.express-editor-notes-content { padding: 20px; }
+.express-editor-notes-content .wysiwyg-toggle-wrapper { background: #333; padding: 5px; color: #fff; font-weight: bold; }
+.express-editor-notes-content .wysiwyg-toggle-wrapper a { color: #fff; }
+.express-editor-notes-content .wysiwyg-toggle-wrapper a:before { content: '\f121'; font-family: FontAwesome; padding-right: 5px; }
+.express-editor-notes-content .wysiwyg-toggle-wrapper a:hover { color: #fff; }
+
+.express-editor-form-actions { padding: 10px 0; }
+.express-editor-form-actions input { margin-right: 10px; }
+
+.express-editor-note-single { background-color: #fff; padding: 10px; margin-bottom: 10px; }
+.express-editor-note-single h3 { margin: 0; font-size: 100%; }
+.express-editor-note-single .express-editor-note-content { padding: 10px 0 0; }
+.express-editor-note-single .express-editor-note-meta { color: #656565; }
+.express-editor-note-single .express-editor-note-meta ul, .express-editor-note-single .express-editor-note-meta li { list-style: none; list-style-image: none; margin: 0; padding: 0; }
+.express-editor-note-single .express-editor-note-meta li { display: inline-block; }
+.express-editor-note-single .express-editor-note-meta li:not(:first-child):before { content: '|'; margin-right: 5px; margin-left: 5px; }
+
+.express-editor-note-status-open { border-left: 5px solid #e51c23; }
+
+.express-editor-note-status-closed { border-left: 5px solid #2fa927; }
+
+.express-editor-note-status { margin-bottom: 5px; }
+
+/* editor theme tab icon */
+ul.tabs--primary li a.editor-notes:before, h1.page-title.icon-editor-notes:before { content: "\f040"; }
+
+.express-editor-notes-none { display: inline-block; padding: 0 20px; }
+
+/* editor Notes Form */
+.express-editor-notes-form { padding: 20px 0; }
+
+#edit-editor-note-message-format { display: none; }

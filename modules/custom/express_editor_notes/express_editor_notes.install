@@ -1,0 +1,69 @@
+<?php
+
+/**
+ * Implements hook_schema().
+ */
+function express_editor_notes_schema() {
+  $schema = array();
+  $schema['express_editor_notes'] = array(
+    'description' => 'The base table for the Editor Note entity.',
+    'fields' => array(
+      'id' => array(
+        'description' => 'Primary key of the Editor Note entity.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'title' => array(
+        'description' => 'Human readable name of the Editor Note.',
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+      ),
+      'node_id' => array(
+        'description' => 'Node ID for Editor Note.',
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+      ),
+      'path' => array(
+        'description' => 'Editor Note path.',
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+      ),
+      'body' => array(
+        'description' => 'Editor Note message.',
+        'type' => 'text',
+        'size' => 'big',
+        'not null' => TRUE,
+      ),
+      'author' => array(
+        'description' => 'Editor Note Author.',
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+      ),
+      'created' => array(
+        'description' => 'Editor Note Created.',
+        'type' => 'int',
+        'length' => '11',
+        'not null' => TRUE,
+      ),
+      'changed' => array(
+        'description' => 'Editor Note Changed.',
+        'type' => 'int',
+        'length' => '11',
+        'not null' => TRUE,
+      ),
+      'status' => array(
+        'description' => 'Status of Editor Note.',
+        'type' => 'int',
+        'length' => '11',
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array('id'),
+  );
+  return $schema;
+}

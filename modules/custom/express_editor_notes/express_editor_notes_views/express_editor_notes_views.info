@@ -1,0 +1,10 @@
+name = Express Editor Notes Views
+description = Views for Express Editor Notes module
+core = 7.x
+package = Express Editor Notes
+dependencies[] = express_editor_notes
+dependencies[] = views
+features[ctools][] = views:views_default:3.0
+features[features_api][] = api:2
+features[views_view][] = express_editor_notes
+features_exclude[dependencies][ctools] = ctools

@@ -1,0 +1,82 @@
+<?php
+
+/**
+ * Define site permissions in code.
+ *
+ * Create a secure_permissions_data module directory and place this function
+ * in secure_permissions_data.module.
+ *
+ * @param $role
+ *   The role for which the permissions are being requested.
+ *
+ * @return
+ *   An array defining all the permissions for the site.
+ */
+
+function cu_editor_notes_bundle_secure_permissions($role) {
+
+  $permissions = array(
+    'administrator' => array(
+      'view editor notes',
+      'add editor notes',
+    ),
+    'anonymous user' => array(
+
+    ),
+    'authenticated user' => array(
+
+    ),
+    'content_editor' => array(
+      'view editor notes',
+      'add editor notes',
+    ),
+    'developer' => array(
+      'view editor notes',
+      'add editor notes',
+      'administer editor notes',
+      'administer editor notes advanced settings',
+    ),
+    'edit_my_content' => array(
+
+    ),
+    'site_owner' => array(
+      'view editor notes',
+      'add editor notes',
+    ),
+  );
+
+  if (isset($permissions[$role])) {
+    return $permissions[$role];
+  }
+}
+
+/**
+ * Implements hook_menu().
+ */
+function cu_editor_notes_bundle_menu() {
+
+  $items['admin/settings/notes'] = array(
+    'title' => 'Editor Notes',
+    'position' => 'right',
+    'page callback' => 'system_admin_menu_block_page',
+    'access arguments' => array('administer express settings'),
+    'file' => 'system.admin.inc',
+    'file path' => drupal_get_path('module', 'system'),
+    'weight' => -2,
+  );
+
+  return $items;
+}
+
+/**
+ * Preprocessor for theme('admin_block').
+ */
+function cu_editor_notes_bundle_preprocess_admin_block(&$vars) {
+  $titles = array(
+    'editor-notes' => 'pencil',
+  );
+  $key = strtolower(str_replace(' ','-', $vars['block']['link_title']));
+  if (array_key_exists($key, $titles)) {
+    $vars['block']['title'] = '<i class="fa fa-' . $titles[$key] . '"></i> ' . $vars['block']['link_title'];
+  }
+}
