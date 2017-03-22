@@ -4,6 +4,7 @@ core = 7.x
 package = CU-Editor Notes
 version = 7.x-1.0
 project = cu_editor_notes_bundle
+project status url = https://github.com/CuBoulder/cu_editor_note_bundle
 
 dependencies[] = express_editor_notes
 dependencies[] = express_editor_notes_views
