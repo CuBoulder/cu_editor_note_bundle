@@ -46,6 +46,26 @@ function express_editor_notes_advanced_config_form($form, $form_state) {
     '#title' => 'Editor Notes Form Display',
     '#description' => 'Disable the Add Note form',
   );
+  $notes_published = express_editor_notes_count_notes(NULL, NULL, 1);
+  $notes_unpublished = express_editor_notes_count_notes(NULL, NULL, 0);
+  $total_notes = $notes_published + $notes_unpublished;
+  if ($total_notes > 0) {
+    $form['purge_notes'] = array(
+      '#type' => 'fieldset',
+      '#title' => 'Purge Editor Notes',
+    );
+    $form['purge_notes']['description'] = array(
+      '#type' => 'markup',
+      '#markup' => "<p>There are a total of $total_notes editor notes. $notes_published published notes and $notes_unpublished unpublished/deleted notes.</p>",
+    );
+    $form['purge_notes']['delete'] = array(
+      '#type' => 'submit',
+      '#value' => 'Permanently delete all editor notes',
+      '#submit' => array(
+        'express_editor_notes_purge',
+      )
+    );
+  }
   // Let system_settings_form_submit run first to variable_set vars.
   $form = system_settings_form($form);
   $form['#submit'][] = 'express_editor_notes_title_submit';

@@ -16,7 +16,6 @@ body.express-editor-notes #cu_back_to_top { bottom: 50px; }
 .express-editor-notes-toolbar a.express-editor-notes-label-link i.fa { color: #000; }
 .express-editor-notes-toolbar h2.notes-active { background: #eccc2e; color: #000; }
 
-.express-editor-notes-closed { position: fixed; bottom: 0; left: 0; right: 0; }
 .express-editor-notes-closed #express-editor-notes-content { display: none; }
 .express-editor-notes-closed .express-editor-notes-toolbar .express-editor-notes-close { display: none; }
 

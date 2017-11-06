@@ -1,0 +1,63 @@
+/* Variables */
+body.express-editor-notes { padding-bottom: 60px !important; }
+body.express-editor-notes #cu_back_to_top { bottom: 50px; }
+
+@media screen and (max-width: 600px) { body.express-editor-notes { padding-bottom: 120px !important; }
+  body.express-editor-notes #cu-feedback { bottom: 40px; } }
+.express-editor-notes-container { display: none; margin-bottom: 20px; font-size: 75%; }
+
+.express-editor-notes-toolbar { background-color: #444; color: #fff; padding: 0 20px; position: relative; display: flex; }
+.express-editor-notes-toolbar a:link, .express-editor-notes-toolbar a:visited { color: #fff; font-weight: 600; display: inline-block; padding: 0 20px; line-height: 40px; }
+.express-editor-notes-toolbar a:link i.fa, .express-editor-notes-toolbar a:visited i.fa { color: #fff; }
+.express-editor-notes-toolbar a:link.express-editor-notes-view-toggle, .express-editor-notes-toolbar a:visited.express-editor-notes-view-toggle { background: #007bc8; }
+.express-editor-notes-toolbar a:hover, .express-editor-notes-toolbar a:focus { color: #fff; }
+.express-editor-notes-toolbar a:hover i.fa, .express-editor-notes-toolbar a:focus i.fa { color: #fff; }
+.express-editor-notes-toolbar h2 { display: inline-block; font-size: 100%; margin: 0; background: #222; color: #fff; padding-left: 20px; padding-right: 20px; margin-left: -20px; line-height: 40px; }
+.express-editor-notes-toolbar a.express-editor-notes-label-link { color: #fff; padding: 0; }
+.express-editor-notes-toolbar a.express-editor-notes-label-link i.fa { color: #fff; }
+.express-editor-notes-toolbar a.express-editor-notes-label-link h2 { background: #007bc8; }
+
+.express-editor-notes-closed #express-editor-notes-content { display: none; }
+.express-editor-notes-closed .express-editor-notes-toolbar .express-editor-notes-close { display: none; }
+
+.express-editor-notes-open .express-editor-notes-toolbar a.express-editor-notes-close { position: absolute; right: 10px; top: 0; padding: 0 10px; line-height: 40px; display: block; color: #fff !important; font-size: 125%; }
+.express-editor-notes-open .express-editor-notes-toolbar a.express-editor-notes-close i.fa { color: #fff; }
+
+.express-editor-notes-content { padding: 20px 0; }
+.express-editor-notes-content .wysiwyg-toggle-wrapper { background: #333; padding: 5px; color: #fff; font-weight: bold; }
+.express-editor-notes-content .wysiwyg-toggle-wrapper a { color: #fff; }
+.express-editor-notes-content .wysiwyg-toggle-wrapper a:before { content: '\f121'; font-family: FontAwesome; padding-right: 5px; }
+.express-editor-notes-content .wysiwyg-toggle-wrapper a:hover { color: #fff; }
+
+.express-editor-form-actions { padding: 10px 0; }
+.express-editor-form-actions input { margin-right: 10px; }
+
+.express-editor-note-single { background-color: #fff; margin-bottom: 10px; }
+.express-editor-note-single .express-editor-note-header { padding: 10px; background: #ddd; }
+.express-editor-note-single[class*="admin"] .express-editor-note-header { background: #e51c23; color: #fff; }
+.express-editor-note-single .express-editor-note-footer { padding: 5px 10px; }
+.express-editor-note-single h3 { margin: 0; font-size: 110%; }
+.express-editor-note-single .express-editor-note-type { text-transform: uppercase; }
+.express-editor-note-single .express-editor-note-content { padding: 10px; }
+.express-editor-note-single .express-editor-note-meta ul, .express-editor-note-single .express-editor-note-meta li { list-style: none; list-style-image: none; margin: 0; padding: 0; }
+.express-editor-note-single .express-editor-note-meta li { display: inline-block; }
+.express-editor-note-single .express-editor-note-meta li:not(:first-child):before { content: '|'; margin-right: 5px; margin-left: 5px; }
+
+.express-editor-note-status-open { border-left: 5px solid #e51c23; }
+
+.express-editor-note-status-closed { border-left: 5px solid #30852c; }
+
+.express-editor-note-status { margin-bottom: 5px; }
+
+/* editor theme tab icon */
+ul.tabs--primary li a.editor-notes:before, h1.page-title.icon-editor-notes:before { content: "\f040"; }
+
+.express-editor-notes-none { display: inline-block; padding: 0 20px; }
+
+/* editor Notes Form */
+.express-editor-notes-form { padding: 20px 0; }
+.express-editor-notes-form .form-text { background: #fff; }
+
+#edit-editor-note-message-format { display: none; }
+
+ul.primary li a.editor-notes:before { content: "\f24a"; }
