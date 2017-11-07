@@ -59,7 +59,8 @@ function express_editor_notes_menu() {
     'title' => 'Edit Editor Note',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('express_editor_notes_form', 3),
-    'access arguments' => array('add editor notes'),
+    'access arguments' => array(3),
+    'access callback' => 'express_editor_notes_access',
     'file' => 'express_editor_notes.admin.inc'
   );
   $items['admin/config/user-interface/editor-notes'] = array(
@@ -78,11 +79,50 @@ function express_editor_notes_menu() {
     'access arguments' => array('administer editor notes'),
     'file' => 'express_editor_notes.admin.inc'
   );
+  $items['admin/notes/delete/%'] = array(
+    'title' => 'Delete Editor Note',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('express_editor_notes_delete', 3),
+    'access arguments' => array('add editor notes'),
+  );
+  /*
+  if (!path_is_admin(current_path())) {
+    $items['node/%/notes'] = array(
+      'title' => 'Editor Notes',
+      'page callback' => 'express_editor_notes_view',
+      'page arguments' => array(2),
+      'access arguments' => array('view editor notes'),
+      'type' => MENU_LOCAL_TASK,
+      'weight' => 0,
+    );
+  }
+  */
+
   return $items;
 }
 
+function express_editor_notes_access($note) {
+  if ( substr( $note->type, 0, 5 ) == "admin" ) {
+    if (user_access('add administrator notes')) {
+      return TRUE;
+    }
+    else {
+      return FALSE;
+    }
+  }
+  elseif (user_access('add editor notes')) {
+    return TRUE;
+  }
+  else {
+    return FALSE;
+  }
+}
+
+function express_editor_notes_view($nid) {
+  return array();
+}
 /**
- * Menu autoloader for for rss feed entities.
+ * Menu autoloader for for editor note entities.
  */
 function express_editor_notes_load($id) {
   $note = entity_load('editor_note', array($id));
@@ -106,6 +146,9 @@ function express_editor_notes_permission() {
     'administer editor notes advanced settings' => array(
       'title' => t('Administer Editor Notes Advanced Settings'),
     ),
+    'add administrator notes' => array(
+      'title' => t('Add Administrator Notes'),
+    ),
   );
 }
 
@@ -115,6 +158,7 @@ function express_editor_notes_permission() {
  * Add editor notes ui to front facing pages if user has permission.
  */
 function express_editor_notes_page_alter(&$page) {
+
   $notes_disabled = variable_get('express_editor_notes_disable', 0);
   if ( (user_access('view editor notes')) && (!path_is_admin(current_path())) && !$notes_disabled) {
     // Editor notes UI title
@@ -126,6 +170,7 @@ function express_editor_notes_page_alter(&$page) {
       $vars['add_notes'] = 1;
     }
     // Get node ID
+    $nid = NULL;
     if($node = menu_get_object()) {
       $nid = $node->nid;
     }
@@ -141,24 +186,24 @@ function express_editor_notes_page_alter(&$page) {
     // Add/View Notes link text
     $vars['content']['notes_link_text'] = ($total_notes > 0) ? '<i class="fa fa-eye"></i> Add/View Notes (' .$total_notes . ')' : '<i class="fa fa-plus"></i> Add a Note';
     $vars['content']['notes'] = $notes;
-    $page['page_bottom']['express_editor_notes']['#markup'] = theme('express_editor_notes', $vars);
-
+    $page['help']['express_editor_notes']['#markup'] = theme('express_editor_notes', $vars);
   }
 }
 /**
  * Count editor notes for a given node.
  */
-function express_editor_notes_count_notes($nid = NULL, $path) {
+function express_editor_notes_count_notes($nid = NULL, $path, $status = 1) {
   $query = db_select('express_editor_notes', 'en');
   $query->fields('en', array('id', 'node_id', 'path'));
   // query for nid first, then path if no nid
   if ($nid) {
     $query->condition('en.node_id', $nid, '=');
   }
-  else {
+  elseif ($path) {
     $query->condition('en.path', $path, '=');
+
   }
-  $query->condition('en.status', 1, '=');
+  $query->condition('en.status', $status, '=');
   $notes = $query->execute();
   $number_of_notes = $notes->rowCount();
   if (!$number_of_notes) {
@@ -171,7 +216,7 @@ function express_editor_notes_count_notes($nid = NULL, $path) {
  */
 function express_editor_notes_get_notes($nid = NULL, $path) {
   $query = db_select('express_editor_notes', 'en');
-  $query->fields('en', array('id', 'title', 'node_id', 'path', 'body', 'author', 'created', 'changed', 'status'));
+  $query->fields('en', array('id', 'title', 'node_id', 'path', 'body', 'author', 'created', 'changed', 'status','type'));
   // query for nid first, then path if no nid
   if ($nid) {
     $query->condition('en.node_id', $nid, '=');
@@ -195,14 +240,28 @@ function express_editor_notes_get_notes($nid = NULL, $path) {
     $note['status'] = $status[$note['status']];
     $uid = $note['author'];
     $author = user_load($uid);
-    $note['email'] = $author->mail;
+    $note['author'] = $author->realname;
     $note['date'] = format_date($note['created'], 'cu_short_date_time');
-    $note['edit'] = l('edit', 'admin/notes/edit/' . $note['id'], array('query' => array('destination' => $referrer)));
+
+    // Check note type and access to check on displaying edit/delete links
+    if ( (substr( $note['type'], 0, 5 ) != "admin") || (user_access('add administrator notes')) ) {
+      $note['edit'] = l('Edit', 'admin/notes/edit/' . $note['id'], array('query' => array('destination' => $referrer)));
+      $note['delete'] = l('Delete', 'admin/notes/delete/' . $note['id'], array('query' => array('destination' => $referrer)));
+    }
+
+
     $body = unserialize($note['body']);
     $note['body'] = check_markup($body['value'], $body['format']);
     $results[]['#markup'] = theme('express_editor_note', $note);
   }
   return $results;
+}
+
+function express_editor_notes_admin_types() {
+  return array(
+    'admin-accessibility',
+    'admin-general'
+  );
 }
 
 /**
@@ -229,7 +288,7 @@ function express_editor_notes_theme(&$existing, $type, $theme, $path) {
  *
  * Editor note add/edit form.
  */
-function express_editor_notes_form($form, $form_state, $note = NULL) {
+function express_editor_notes_form($form, $form_state, $note = NULL, $sitewide = NULL) {
   $form = array();
   // Add for existing entities
     $form['#entity']->id = isset($note) ? $note->id : '';
@@ -239,6 +298,7 @@ function express_editor_notes_form($form, $form_state, $note = NULL) {
     $status = isset($note->status) ? $note->status : 1;
     $node_id = isset($note->node_id) ? $note->node_id : NULL;
     $path = isset($note->path) ? $note->path : current_path();
+    $type = isset($note->type) ? $note->type : NULL;
   if ($node_id) {
     $nid = $node_id;
   }
@@ -272,6 +332,34 @@ function express_editor_notes_form($form, $form_state, $note = NULL) {
     '#default_value' => $title,
     '#required' => TRUE,
   );
+  $options = array(
+
+    'accessibility' => 'Accessibility',
+    'content' => 'Content',
+    'design' => 'Design',
+    'general' => 'General',
+    'production' => 'Production',
+  );
+
+  if (user_access('add administrator notes')) {
+    $options['admin-accessibility'] = 'Admin Accessibility';
+    $options['admin-general'] = 'Admin General';
+  }
+  $form['editor_note_type'] = array(
+    '#type' => 'select',
+    '#title' => 'Type',
+    '#options' => $options,
+    '#empty_option' => '-Select One-',
+    '#default_value' => $type,
+    '#required' => TRUE,
+  );
+  if ($sitewide) {
+    $form['editor_note_type']['#type'] = 'hidden';
+    $form['editor_note_type']['#value'] = 'admin-sitewide';
+    $form['editor_note_path']['#value'] = 'sitewide';
+    $form['editor_note_node_id']['#value'] = 'sitewide';
+  }
+
   $body = isset($body['value']) ? $body['value'] : '';
   $form['editor_note_message'] = array(
     '#title' => 'Editor Note Message',
@@ -338,6 +426,7 @@ function express_editor_notes_form_submit($form, &$form_state) {
     'created' => $form_state['values']['editor_note_created'],
     'changed' => REQUEST_TIME,
     'status' => $form_state['values']['editor_note_status'],
+    'type' => $form_state['values']['editor_note_type'],
   );
   // See if the entity exists
   if (isset($form['#entity']->id) && $note = entity_load_single('editor_note', $form['#entity']->id)) {
@@ -351,31 +440,49 @@ function express_editor_notes_form_submit($form, &$form_state) {
     $note = entity_create('editor_note', $values);
   }
   $note->save();
-  drupal_set_message('Editor note has been saved');
+  drupal_set_message('Editor note has been saved.');
 }
 /**
  * Entity delete function for express_editor_notes_form().
  */
 function express_editor_notes_delete_submit($form, &$form_state) {
-  $id = $form['#entity']->id;
-  $note = entity_load_single('editor_note', $form['#entity']->id);
-  global $user;
+  $note_id = $form['#entity']->id;
+  drupal_goto('admin/notes/delete/' . $note_id, array('destination' => $_GET['destination']));
+  //express_editor_notes_delete($note_id);
+}
 
-  $values = array(
-    'title' => $form_state['values']['editor_note_title'],
-    'node_id' => $form_state['values']['editor_note_node_id'],
-    'path' => $form_state['values']['editor_note_path'],
-    'body' => $form_state['values']['editor_note_message'],
-    'author' => $user->uid,
-    'created' => $form_state['values']['editor_note_created'],
-    'changed' => REQUEST_TIME,
-    'status' => 0,
-  );
-  foreach ($values as $key => $value) {
-    $note->$key = $value;
+/**
+ * Delete editor note by entity id.
+ */
+function express_editor_notes_delete($form, &$form_state, $note_id) {
+  $note = entity_load_single('editor_note', $note_id);
+
+  if ( (substr( $note->type, 0, 5 ) == "admin") || (!user_access('add administrator notes')) ) {
+    drupal_set_title('Access Denied');
+    $form = array();
+    $form['message'] = array(
+      '#type' => 'markup',
+      '#markup' => "<p>You don't have permissions to delete this editor note.</p>",
+    );
+    return $form;
   }
-  $note->save();
-  drupal_set_message('Editor has been deleted.');
+
+  // Always provide entity id in the same form key as in the entity edit form.
+  $form['id'] = array('#type' => 'value', '#value' => $note_id);
+  $form['message']['#markup'] = '<p>' . t('You are about to delete @name. Are you sure you want to delete?',array('@name' => $note->title)) . '</p>';
+  $form['#submit'][] = 'express_editor_notes_delete_confirm';
+  $confirm_form = confirm_form($form, t('Delete @name',array('@name' => $note->title)), $_GET['destination']);
+  $confirm_form['actions']['submit']['#value'] = 'Delete';
+  return $confirm_form;
+}
+
+function express_editor_notes_delete_confirm($form, &$form_state) {
+  $id = $form['id']['#value'];
+  entity_delete('editor_note', $id);
+  drupal_set_message('Editor note has been deleted.');
+  if (isset($_GET['destination'])) {
+    drupal_goto(check_plain($_GET['destination']));
+  }
 }
 
 function express_editor_notes_form_cancel($form, &$form_state) {
@@ -388,6 +495,13 @@ function express_editor_notes_form_cancel($form, &$form_state) {
  * Adds class to body tag if editor notes is on.
  */
 function express_editor_notes_preprocess_html(&$vars) {
+  if (path_is_admin(current_path())){
+    $vars['classes_array'][] = 'path-admin';
+  }
+  else {
+    $vars['classes_array'][] = 'path-not-admin';
+  }
+
   if ( (user_access('view editor notes')) && (!path_is_admin(current_path())) ) {
     $vars['classes_array'][] = 'express-editor-notes';
   }
@@ -407,5 +521,34 @@ function express_editor_notes_theme_registry_alter(&$theme_registry) {
       $first_element = array_shift($theme_registry[$h]['theme paths']);
       array_unshift($theme_registry[$h]['theme paths'], array_shift($theme_registry[$h]['theme paths']), $module_path);
     }
+  }
+}
+
+function express_editor_notes_purge() {
+  $entityType = 'editor_note';
+  $results = entity_load($entityType);
+  $entity_ids = array_keys($results);
+  entity_delete_multiple($entityType, $entity_ids);
+  drupal_set_message('All editor notes have been permanently deleted.');
+}
+
+function express_editor_note_types($type = NULL) {
+  $options = array(
+
+    'accessibility' => 'Accessibility',
+    'content' => 'Content',
+    'design' => 'Design',
+    'general' => 'General',
+    'production' => 'Production',
+    'admin-accessibility' => 'Admin Accessibility',
+    'admin-general' => 'Admin General',
+    'admin-sitewide' => 'Sitewide'
+  );
+
+  if ($type) {
+    return $options[$type];
+  }
+  else {
+    return $options;
   }
 }

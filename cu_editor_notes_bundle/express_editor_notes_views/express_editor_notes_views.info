@@ -3,6 +3,7 @@ description = Views for Express Editor Notes module
 core = 7.x
 package = Express Editor Notes
 dependencies[] = express_editor_notes
+dependencies[] = realname
 dependencies[] = views
 features[ctools][] = views:views_default:3.0
 features[features_api][] = api:2

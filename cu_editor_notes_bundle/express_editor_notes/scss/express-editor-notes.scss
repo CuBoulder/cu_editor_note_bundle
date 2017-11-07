@@ -2,9 +2,8 @@
 $blue: #007BC8;
 $yellow: #ECCC2E;
 
-$green: #2FA927;
+$green: #30852C;
 $red: #e51c23;
-
 
 @mixin rgbashadow($x, $y, $blur, $rgb, $transparency) {
   -webkit-box-shadow: $x $y $blur rgba($rgb, $transparency);
@@ -33,32 +32,36 @@ body.express-editor-notes {
 }
 .express-editor-notes-container {
 
-
-  background-color: #f5f5f5;
-  z-index: 1;
-  @include rgbashadow(0,0,5px,#000, .25);
+  display:none;
+  margin-bottom:20px;
+  //background-color: #f5f5f5;
+  //@include rgbashadow(0,0,5px,#000, .25);
   font-size:75%;
 }
 .express-editor-notes-toolbar {
-  background-color: #333;
+  background-color: #444;
   color:#fff;
   padding: 0 20px;
   position: relative;
+
+  display:flex;
   a:link, a:visited {
+
     color:#fff;
     font-weight: 600;
     display: inline-block;
     padding:0 20px;
     line-height: 40px;
     i.fa {
-      color:$yellow;
+      color:#fff;
+    }
+    &.express-editor-notes-view-toggle {
+      background: $blue;
     }
   }
 
   a:hover,
-  a:focus,
-  a.active {
-    background-color: #555;
+  a:focus {
     color:#fff;
     i.fa {
       color:#fff;
@@ -68,30 +71,34 @@ body.express-editor-notes {
     display: inline-block;
     font-size: 100%;
     margin:0;
-    background: #ddd;
-    color:#000;
+    background: #222;
+    color:#fff;
     padding-left:20px;
     padding-right: 20px;
     margin-left:-20px;
     line-height: 40px;
   }
   a.express-editor-notes-label-link {
-    color:#000;
+
+    color:#fff;
     padding:0;
     i.fa {
-      color:#000;
+      color:#fff;
+    }
+    h2 {
+      background: $blue;
     }
   }
   h2.notes-active {
-    background: $yellow;
-    color:#000;
+    //background: $yellow;
+    //color:#000;
+    i.fa {
+      //color:$yellow;
+    }
   }
 }
 .express-editor-notes-closed {
-  position: fixed;
-  bottom:0;
-  left:0;
-  right:0;
+
   #express-editor-notes-content {
     display: none;
   }
@@ -116,7 +123,7 @@ body.express-editor-notes {
 }
 
 .express-editor-notes-content {
-  padding: 20px;
+  padding: 20px 0;
   .wysiwyg-toggle-wrapper {
     background: #333;
     padding:5px;
@@ -139,23 +146,48 @@ body.express-editor-notes {
   padding: 10px 0;
   input{
     margin-right:10px;
+
+  }
+  #edit-submit {
+
+  }
+  #edit-cancel {
+
   }
 }
 
 .express-editor-note-single {
   background-color: #fff;
   //border:1px solid #e7e7e7;
-  padding:10px;
+  //padding:10px;
   margin-bottom: 10px;
+  .express-editor-note-header {
+    padding:10px;
+    background:#ddd;
+  }
+
+  &[class*="admin"] {
+    .express-editor-note-header {
+      background: $red;
+      color:#fff;
+    }
+  }
+  .express-editor-note-footer {
+    padding:5px 10px;
+  }
   h3 {
     margin:0;
-    font-size: 100%;
+    font-size: 110%;
+  }
+  .express-editor-note-type {
+    text-transform: uppercase;
   }
   .express-editor-note-content {
-    padding: 10px 0 0;
+    padding: 10px;
+
   }
   .express-editor-note-meta {
-    color:#656565;
+    //color:#656565;
     ul, li {
       list-style: none;
       list-style-image: none;
@@ -196,7 +228,15 @@ ul.tabs--primary li a.editor-notes:before, h1.page-title.icon-editor-notes:befor
 /* editor Notes Form */
 .express-editor-notes-form {
   padding: 20px 0;
+
+  .form-text {
+    background: #fff;
+  }
 }
 #edit-editor-note-message-format {
   display: none;
+}
+
+ul.primary li a.editor-notes:before {
+    content: "\f24a";
 }

@@ -8,5 +8,7 @@ $note = $query->execute()->fetchObject();
 
 $path = !empty($note->node_id) ? 'node/' . $note->node_id : $note->path;
 $item = menu_get_item($path);
+$alias = drupal_get_path_alias($path);
 print l($item['title'], $path);
+print ("<br /><small>$alias</small>");
 ?>

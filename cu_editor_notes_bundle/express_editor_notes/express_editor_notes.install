@@ -62,6 +62,12 @@ function express_editor_notes_schema() {
         'length' => '11',
         'not null' => TRUE,
       ),
+      'type' => array(
+        'description' => 'Type of Editor Note.',
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+      ),
     ),
     'primary key' => array('id'),
   );

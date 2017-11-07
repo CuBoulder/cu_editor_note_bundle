@@ -19,6 +19,7 @@ function cu_editor_notes_bundle_secure_permissions($role) {
     'administrator' => array(
       'view editor notes',
       'add editor notes',
+      'add administrator notes',
     ),
     'anonymous user' => array(
 
@@ -35,9 +36,10 @@ function cu_editor_notes_bundle_secure_permissions($role) {
       'add editor notes',
       'administer editor notes',
       'administer editor notes advanced settings',
+      'add administrator notes',
     ),
     'edit_my_content' => array(
-
+      'view editor notes',
     ),
     'site_owner' => array(
       'view editor notes',

@@ -22,7 +22,7 @@
  * the view is modified.
  */
 ?>
-<?php 
+<?php
 $node = node_load($output);
 print l($node->title, 'node/' . $output);
 ?>

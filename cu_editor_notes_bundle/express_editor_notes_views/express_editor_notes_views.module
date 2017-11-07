@@ -22,3 +22,17 @@ function express_editor_notes_views_theme_registry_alter(&$theme_registry) {
     }
   }
 }
+
+/**
+ * Implements hook_form_alter().
+ *
+ * Change type filter from a text field to a select list.
+ */
+function express_editor_notes_views_form_views_exposed_form_alter(&$form, &$form_state, $form_id) {
+  if ($form['#id'] == 'views-exposed-form-express-editor-notes-page') {
+    $form['type']['#type'] = 'select';
+    $form['type']['#options'] = express_editor_note_types();
+    unset($form['type']['#size']);
+    $form['type']['#empty_option'] = 'All';
+  }
+}
