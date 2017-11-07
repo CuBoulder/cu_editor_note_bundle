@@ -1,0 +1,411 @@
+<?php
+
+/**
+ * Implements hook_entity_info().
+ */
+function express_editor_notes_entity_info() {
+  $info = array();
+  // Our custom video entity needs to be defined here.
+  // See http://drupal.org/node/1026420 and http://drupal.org/node/878804
+  // for more documentation.
+  $info['editor_note'] = array(
+    // Human readable label.
+    'label' => t('Editor Note'),
+    // Table for storing entity data, defined in hook_schema().
+    'base table' => 'express_editor_notes',
+    // This helps Entity API know how to query your custom table.
+    'entity keys' => array(
+      'id' => 'id',
+    ),
+    // This is a uri function provided by the Entity contrib module.
+    // It's a simple wrapper around the uri method in the controller class.
+    'uri callback' => 'entity_class_uri',
+    // These are the default controllers.
+    // 'entity class' => 'Entity',
+    'entity class' => 'Entity',
+    // 'controller class' => 'DrupalDefaultEntityController',
+    // Other options provided by the EntityAPI contrib module:
+    // 'controller class' => 'EntityAPIController ',
+    // 'controller class' => 'EntityAPIControllerExportable',
+    'controller class' => 'EntityAPIController',
+     // The information below is used to extend the EntityDefaultUIController
+
+     'module' => 'express_editor_notes',
+     // Access callback to determine permisisons.
+     'access callback' => 'express_editor_notes_access_callback',
+     // Tell FieldAPI that fields can be attached to our note entity
+     'fieldable' => FALSE,
+     'bundles' => array(
+        'editor_note' => array(
+          'label' => t('Editor Note'),
+          'admin' => array(
+            'path' => 'admin/editor-notes',
+            'access arguments' => array('add editor notes'),
+          ),
+        ),
+      ),
+  );
+  return $info;
+}
+
+/**
+ * Implements hook_menu().
+ */
+function express_editor_notes_menu() {
+  $items = array();
+
+  // Edit admin note arg1 = note id, arg2 = node id
+  $items['admin/notes/edit/%express_editor_notes'] = array(
+    'title' => 'Edit Editor Note',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('express_editor_notes_form', 3),
+    'access arguments' => array('add editor notes'),
+    'file' => 'express_editor_notes.admin.inc'
+  );
+  $items['admin/config/user-interface/editor-notes'] = array(
+    'title' => 'Editor Notes',
+    'description' => 'Configure Editor Notes settings.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('express_editor_notes_advanced_config_form'),
+    'access arguments' => array('administer editor notes advanced settings'),
+    'file' => 'express_editor_notes.admin.inc'
+  );
+  $items['admin/settings/notes/config'] = array(
+    'title' => 'Editor Notes Settings',
+    'description' => 'Configure editor notes.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('express_editor_notes_config_form'),
+    'access arguments' => array('administer editor notes'),
+    'file' => 'express_editor_notes.admin.inc'
+  );
+  return $items;
+}
+
+/**
+ * Menu autoloader for for rss feed entities.
+ */
+function express_editor_notes_load($id) {
+  $note = entity_load('editor_note', array($id));
+  return array_pop($note);
+}
+
+/**
+ * Implements hook_permission().
+ */
+function express_editor_notes_permission() {
+  return array(
+    'view editor notes' => array(
+      'title' => t('View Editor Notes'),
+    ),
+    'add editor notes' => array(
+      'title' => t('Add Editor Notes'),
+    ),
+    'administer editor notes' => array(
+      'title' => t('Administer Editor Notes'),
+    ),
+    'administer editor notes advanced settings' => array(
+      'title' => t('Administer Editor Notes Advanced Settings'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_page_alter().
+ *
+ * Add editor notes ui to front facing pages if user has permission.
+ */
+function express_editor_notes_page_alter(&$page) {
+  $notes_disabled = variable_get('express_editor_notes_disable', 0);
+  if ( (user_access('view editor notes')) && (!path_is_admin(current_path())) && !$notes_disabled) {
+    // Editor notes UI title
+    $vars['content']['notes_title'] = variable_get('express_editor_notes_title', '<i class="fa fa-pencil"></i> Editor Notes');
+
+    // Add form if user has permission to add notes
+    if (user_access('add editor notes')) {
+      $vars['content']['form'] = drupal_get_form('express_editor_notes_form');
+      $vars['add_notes'] = 1;
+    }
+    // Get node ID
+    if($node = menu_get_object()) {
+      $nid = $node->nid;
+    }
+    // Get notes
+    $notes = express_editor_notes_get_notes($nid,current_path());
+
+    // Get note count
+    $total_notes = express_editor_notes_count_notes($nid, current_path());
+
+    // Build variable array for theme
+    $vars['content']['total_notes'] = $total_notes;
+    $vars['notes_active'] = ($total_notes > 0) ? 'notes-active' : '';
+    // Add/View Notes link text
+    $vars['content']['notes_link_text'] = ($total_notes > 0) ? '<i class="fa fa-eye"></i> Add/View Notes (' .$total_notes . ')' : '<i class="fa fa-plus"></i> Add a Note';
+    $vars['content']['notes'] = $notes;
+    $page['page_bottom']['express_editor_notes']['#markup'] = theme('express_editor_notes', $vars);
+
+  }
+}
+/**
+ * Count editor notes for a given node.
+ */
+function express_editor_notes_count_notes($nid = NULL, $path) {
+  $query = db_select('express_editor_notes', 'en');
+  $query->fields('en', array('id', 'node_id', 'path'));
+  // query for nid first, then path if no nid
+  if ($nid) {
+    $query->condition('en.node_id', $nid, '=');
+  }
+  else {
+    $query->condition('en.path', $path, '=');
+  }
+  $query->condition('en.status', 1, '=');
+  $notes = $query->execute();
+  $number_of_notes = $notes->rowCount();
+  if (!$number_of_notes) {
+    return 0;
+  }
+  return $number_of_notes;
+}
+/**
+ * Get all editor notes for a given node.
+ */
+function express_editor_notes_get_notes($nid = NULL, $path) {
+  $query = db_select('express_editor_notes', 'en');
+  $query->fields('en', array('id', 'title', 'node_id', 'path', 'body', 'author', 'created', 'changed', 'status'));
+  // query for nid first, then path if no nid
+  if ($nid) {
+    $query->condition('en.node_id', $nid, '=');
+    $referrer = 'node/' . $nid;
+  }
+  else {
+    $query->condition('en.path', $path, '=');
+    $referrer = $path;
+  }
+  $query->condition('en.status', 1, '=');
+  $query->orderBy('status', 'ASC');
+  $query->orderBy('created', 'DESC');
+  $notes = $query->execute();
+  $results = array();
+  // Loop through results and build variables for theme
+  while($note = $notes->fetchAssoc()) {
+    $status = array(
+      '0' => 'Open',
+      '1' => 'Closed',
+    );
+    $note['status'] = $status[$note['status']];
+    $uid = $note['author'];
+    $author = user_load($uid);
+    $note['email'] = $author->mail;
+    $note['date'] = format_date($note['created'], 'cu_short_date_time');
+    $note['edit'] = l('edit', 'admin/notes/edit/' . $note['id'], array('query' => array('destination' => $referrer)));
+    $body = unserialize($note['body']);
+    $note['body'] = check_markup($body['value'], $body['format']);
+    $results[]['#markup'] = theme('express_editor_note', $note);
+  }
+  return $results;
+}
+
+/**
+ * Implements hook_theme().
+ *
+ * Adds theme functions and template files for editor notes.
+ */
+function express_editor_notes_theme(&$existing, $type, $theme, $path) {
+  $registry = array();
+  $template_dir = drupal_get_path('module', 'express_editor_notes') . '/templates';
+  $registry['express_editor_notes'] = array(
+    'template' => 'express-editor-notes',
+    'path' => $template_dir,
+  );
+  $registry['express_editor_note'] = array(
+    'template' => 'express-editor-note',
+    'path' => $template_dir,
+  );
+  return $registry;
+}
+
+/**
+ * Implements hook_form().
+ *
+ * Editor note add/edit form.
+ */
+function express_editor_notes_form($form, $form_state, $note = NULL) {
+  $form = array();
+  // Add for existing entities
+    $form['#entity']->id = isset($note) ? $note->id : '';
+    $title = isset($note->title) ? $note->title : '';
+    $body = isset($note->body) ? unserialize($note->body) : '';
+    $created = isset($note->created) ? $note->created : REQUEST_TIME;
+    $status = isset($note->status) ? $note->status : 1;
+    $node_id = isset($note->node_id) ? $note->node_id : NULL;
+    $path = isset($note->path) ? $note->path : current_path();
+  if ($node_id) {
+    $nid = $node_id;
+  }
+  elseif ($node = menu_get_object()) {
+    $nid = $node->nid;
+  }
+  else {
+    $nid = NULL;
+  }
+
+  if ($path) {
+    $form['editor_note_path'] = array(
+      '#type' => 'hidden',
+      '#value' => $path,
+    );
+  }
+  else {
+    $form['editor_note_path'] = array(
+      '#type' => 'hidden',
+      '#value' => check_plain($_GET['destination']),
+    );
+  }
+  $form['editor_note_node_id'] = array(
+    '#type' => 'hidden',
+    '#value' => $nid,
+  );
+
+  $form['editor_note_title'] = array(
+    '#title' => 'Editor Note Title',
+    '#type' => 'textfield',
+    '#default_value' => $title,
+    '#required' => TRUE,
+  );
+  $body = isset($body['value']) ? $body['value'] : '';
+  $form['editor_note_message'] = array(
+    '#title' => 'Editor Note Message',
+    '#type' => 'text_format',
+    '#default_value' => $body,
+    '#required' => TRUE,
+  );
+  $form['editor_note_status'] = array(
+    '#type' => 'hidden',
+    '#value' => 1,
+  );
+  global $user;
+  $form['editor_note_author'] = array(
+    '#type' => 'hidden',
+    '#value' => $user->uid,
+  );
+  $form['editor_note_created'] = array(
+    '#type' => 'hidden',
+    '#value' => $created,
+  );
+
+
+  // Add submit/cancel/delete actions
+  $form['actions'] = array(
+    '#prefix' => '<div class="express-editor-form-actions">',
+    '#suffix' => '</div>',
+  );
+  $form['actions']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save Note'),
+  );
+  $form['actions']['cancel'] = array(
+    '#type'   => 'submit',
+    '#value'  => t('Cancel'),
+    '#submit' => array('express_editor_notes_form_cancel'),
+    '#limit_validation_errors' => array(),
+  );
+  // Only add delete if it exists already
+  if ($note) {
+    $form['actions']['delete'] = array(
+      '#type' => 'submit',
+      '#submit' => array('express_editor_notes_delete_submit'),
+      '#value' => t('Delete'),
+    );
+  }
+  $form_state['redirect'] = isset($_GET['destination']) ? check_plain($_GET['destination']) : NULL;
+  // Add validation and submit functions
+  $form['#submit'][] = 'express_editor_notes_form_submit';
+  return $form;
+}
+
+/**
+ * Submit function for express_editor_notes_form().
+ */
+function express_editor_notes_form_submit($form, &$form_state) {
+  global $user;
+
+  $values = array(
+    'title' => $form_state['values']['editor_note_title'],
+    'node_id' => $form_state['values']['editor_note_node_id'],
+    'path' => $form_state['values']['editor_note_path'],
+    'body' => serialize($form_state['values']['editor_note_message']),
+    'author' => $user->uid,
+    'created' => $form_state['values']['editor_note_created'],
+    'changed' => REQUEST_TIME,
+    'status' => $form_state['values']['editor_note_status'],
+  );
+  // See if the entity exists
+  if (isset($form['#entity']->id) && $note = entity_load_single('editor_note', $form['#entity']->id)) {
+    // Entity exists, add values just in case they have changed
+    foreach ($values as $key => $value) {
+      $note->$key = $value;
+    }
+  }
+  else {
+    // create new entity with values
+    $note = entity_create('editor_note', $values);
+  }
+  $note->save();
+  drupal_set_message('Editor note has been saved');
+}
+/**
+ * Entity delete function for express_editor_notes_form().
+ */
+function express_editor_notes_delete_submit($form, &$form_state) {
+  $id = $form['#entity']->id;
+  $note = entity_load_single('editor_note', $form['#entity']->id);
+  global $user;
+
+  $values = array(
+    'title' => $form_state['values']['editor_note_title'],
+    'node_id' => $form_state['values']['editor_note_node_id'],
+    'path' => $form_state['values']['editor_note_path'],
+    'body' => $form_state['values']['editor_note_message'],
+    'author' => $user->uid,
+    'created' => $form_state['values']['editor_note_created'],
+    'changed' => REQUEST_TIME,
+    'status' => 0,
+  );
+  foreach ($values as $key => $value) {
+    $note->$key = $value;
+  }
+  $note->save();
+  drupal_set_message('Editor has been deleted.');
+}
+
+function express_editor_notes_form_cancel($form, &$form_state) {
+
+}
+
+/**
+ * Implements module_preprocess_html().
+ *
+ * Adds class to body tag if editor notes is on.
+ */
+function express_editor_notes_preprocess_html(&$vars) {
+  if ( (user_access('view editor notes')) && (!path_is_admin(current_path())) ) {
+    $vars['classes_array'][] = 'express-editor-notes';
+  }
+}
+
+/**
+ * Implements hook_theme_registry_alter().
+ */
+function express_editor_notes_theme_registry_alter(&$theme_registry) {
+  $module_path = drupal_get_path('module', 'express_editor_notes');
+  $theme_registry_copy = $theme_registry;
+  _theme_process_registry($theme_registry_copy, 'phptemplate', 'theme_engine', 'editor_note', $module_path);
+  $theme_registry += array_diff_key($theme_registry_copy, $theme_registry);
+  $hooks = array('editor_note');
+  foreach ($hooks as $h) {
+    if (isset($theme_registry[$h]['theme paths'])) {
+      $first_element = array_shift($theme_registry[$h]['theme paths']);
+      array_unshift($theme_registry[$h]['theme paths'], array_shift($theme_registry[$h]['theme paths']), $module_path);
+    }
+  }
+}

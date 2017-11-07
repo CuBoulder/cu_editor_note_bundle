@@ -1,0 +1,10 @@
+name = Express Editor Notes
+description = Leave notes on pages for other content editors
+core = 7.x
+version = 7.x-1.0
+project = express_editor_notes
+
+stylesheets[screen][] = css/express-editor-notes.css
+scripts[] = js/express-editor-notes.js
+
+dependencies[] = express_editor_notes_views
