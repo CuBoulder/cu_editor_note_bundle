@@ -457,7 +457,7 @@ function express_editor_notes_delete_submit($form, &$form_state) {
 function express_editor_notes_delete($form, &$form_state, $note_id) {
   $note = entity_load_single('editor_note', $note_id);
 
-  if ( (substr( $note->type, 0, 5 ) == "admin") || (!user_access('add administrator notes')) ) {
+  if ( (substr( $note->type, 0, 5 ) == "admin") && (!user_access('add administrator notes')) ) {
     drupal_set_title('Access Denied');
     $form = array();
     $form['message'] = array(
