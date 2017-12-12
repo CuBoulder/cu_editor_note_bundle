@@ -105,6 +105,10 @@ function express_editor_notes_views_views_default_views() {
   $handler->display->display_options['fields']['id_1']['field'] = 'id';
   $handler->display->display_options['fields']['id_1']['label'] = 'Page Title';
   $handler->display->display_options['fields']['id_1']['separator'] = '';
+  /* Field: Editor Note: Type */
+  $handler->display->display_options['fields']['type']['id'] = 'type';
+  $handler->display->display_options['fields']['type']['table'] = 'express_editor_notes';
+  $handler->display->display_options['fields']['type']['field'] = 'type';
   /* Field: Editor Note: Author */
   $handler->display->display_options['fields']['author']['id'] = 'author';
   $handler->display->display_options['fields']['author']['table'] = 'express_editor_notes';
@@ -133,6 +137,24 @@ function express_editor_notes_views_views_default_views() {
   $handler->display->display_options['filters']['status']['table'] = 'express_editor_notes';
   $handler->display->display_options['filters']['status']['field'] = 'status';
   $handler->display->display_options['filters']['status']['value']['value'] = '1';
+  /* Filter criterion: Editor Note: Type */
+  $handler->display->display_options['filters']['type']['id'] = 'type';
+  $handler->display->display_options['filters']['type']['table'] = 'express_editor_notes';
+  $handler->display->display_options['filters']['type']['field'] = 'type';
+  $handler->display->display_options['filters']['type']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['type']['expose']['operator_id'] = 'type_op';
+  $handler->display->display_options['filters']['type']['expose']['label'] = 'Type';
+  $handler->display->display_options['filters']['type']['expose']['operator'] = 'type_op';
+  $handler->display->display_options['filters']['type']['expose']['identifier'] = 'type';
+  $handler->display->display_options['filters']['type']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    6 => 0,
+    4 => 0,
+    7 => 0,
+    3 => 0,
+    5 => 0,
+  );
 
   /* Display: Page */
   $handler = $view->new_display('page', 'Page', 'page');
