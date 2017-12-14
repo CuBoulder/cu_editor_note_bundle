@@ -28,8 +28,8 @@ function cu_editor_notes_bundle_secure_permissions($role) {
 
     ),
     'content_editor' => array(
-      'view editor notes',
-      'add editor notes',
+      // 'view editor notes',
+      // 'add editor notes',
     ),
     'developer' => array(
       'view editor notes',
@@ -39,11 +39,11 @@ function cu_editor_notes_bundle_secure_permissions($role) {
       'add administrator notes',
     ),
     'edit_my_content' => array(
-      'view editor notes',
+      // 'view editor notes',
     ),
     'site_owner' => array(
-      'view editor notes',
-      'add editor notes',
+      // 'view editor notes',
+      // 'add editor notes',
     ),
   );
 
