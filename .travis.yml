@@ -40,7 +40,7 @@ install:
   - export BUNDLE_NAME="cu_editor_note_bundle"
 
   # Extra modules that need to be enabled but aren't by default.
-  - export ADD_MODULES=""
+  - export ADD_MODULES="express_editor_notes express_editor_notes_views"
 
   # Behat tags. Allows you to include/exclude tags per bundle as needed.
   - export EXPRESS_JS_BEHAT_TAGS="~@exclude_all_bundles&&~@broken&&~@bundle_conflict&&@javascript"
