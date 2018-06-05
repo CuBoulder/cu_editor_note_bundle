@@ -1,7 +1,7 @@
 name = Express Editor Notes
-description = Leave notes on pages for other content editors
+description = Leave notes on pages for other content editors.
 core = 7.x
-version = 7.x-1.0
+version = 7.x-1.1
 project = express_editor_notes
 
 stylesheets[screen][] = css/express-editor-notes.css
