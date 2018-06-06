@@ -1,4 +1,4 @@
-@editor_note
+@cu_editor_note_bundle
 Feature: Editor Note
     In order to leave notes to my site editors
     As a user with the proper role
